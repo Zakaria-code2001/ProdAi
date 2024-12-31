@@ -1,9 +1,18 @@
-import {SignIn} from '@clerk/nextjs'
+import { SignIn } from '@clerk/nextjs';
 
 const SignInPage = () => {
-    return (
-        <SignIn />
-    )
-    }
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+      }}
+    >
+      <SignIn />
+    </div>
+  );
+};
 
-export default SignInPage
+export default SignInPage;
