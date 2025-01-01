@@ -15,8 +15,8 @@ import Link from 'next/link';
 
 const items = [
   {
-    title: 'Home',
-    url: '#',
+    title: 'Notes',
+    url: '/notes',
     icon: Home,
   },
   {
