@@ -28,7 +28,8 @@ export async function GET(
     return NextResponse.json({ data: note });
   } catch (error) {
     console.error('Error in GET:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Error fetching note';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Error fetching note';
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

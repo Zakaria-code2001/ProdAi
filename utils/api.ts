@@ -40,3 +40,25 @@ export async function updateNote(
     return null;
   }
 }
+
+export async function createNote(title: string, content: string) {
+  try {
+    const response = await fetch('/api/notes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ title, content }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to create note: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data?.data;
+  } catch (error) {
+    console.error('Error creating note:', error);
+    return null;
+  }
+}

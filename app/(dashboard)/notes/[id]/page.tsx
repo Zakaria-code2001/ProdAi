@@ -1,3 +1,4 @@
+// filepath: /Users/zakariamohammadi/Desktop/prodai/app/(dashboard)/notes/[id]/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,6 +12,10 @@ import {
   AlignRight,
   Plus,
 } from 'lucide-react';
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
+import OrderedList from '@tiptap/extension-ordered-list';
 
 const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
   const [entry, setEntry] = useState<{
@@ -24,6 +29,22 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
   const [showGenerated, setShowGenerated] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Placeholder.configure({
+        placeholder: 'Inizia a scrivere...',
+      }),
+      OrderedList,
+    ],
+    content: entry?.content || '',
+    onUpdate: ({ editor }) => {
+      if (entry) {
+        setEntry({ ...entry, content: editor.getHTML() });
+      }
+    },
+  });
+
   useEffect(() => {
     params.then((unwrappedParams) => {
       setId(unwrappedParams.id);
@@ -36,6 +57,7 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
         try {
           const fetchedEntry = await getById(id);
           setEntry(fetchedEntry);
+          editor?.commands.setContent(fetchedEntry.content);
         } catch (err) {
           console.error('Error fetching note:', err);
           setError('Note not found.');
@@ -44,49 +66,15 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
 
       fetchNote();
     }
-  }, [id]);
-
-  const handleFormat = (type: 'bold' | 'italic' | 'underline') => {
-    if (!entry) return;
-
-    const textArea = document.getElementById('editor') as HTMLTextAreaElement;
-    const start = textArea.selectionStart;
-    const end = textArea.selectionEnd;
-    const selection = entry.content.substring(start, end);
-
-    if (selection) {
-      let newContent = entry.content;
-      switch (type) {
-        case 'bold':
-          newContent =
-            entry.content.substring(0, start) +
-            `**${selection}**` +
-            entry.content.substring(end);
-          break;
-        case 'italic':
-          newContent =
-            entry.content.substring(0, start) +
-            `*${selection}*` +
-            entry.content.substring(end);
-          break;
-        case 'underline':
-          newContent =
-            entry.content.substring(0, start) +
-            `_${selection}_` +
-            entry.content.substring(end);
-          break;
-      }
-      setEntry({ ...entry, content: newContent });
-    }
-  };
+  }, [id, editor]);
 
   const addGeneratedContent = () => {
-    if (!entry?.continuedContent) return;
-    
+    if (!entry?.continuedContent || !editor) return;
+
+    editor.chain().focus().insertContent(entry.continuedContent).run();
     setEntry({
       ...entry,
-      content: entry.content + '\n' + entry.continuedContent,
-      continuedContent: undefined
+      continuedContent: undefined,
     });
     setShowGenerated(false);
   };
@@ -112,21 +100,21 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
 
         <div className="flex items-center space-x-4 mb-4 p-2 border-b border-gray-200">
           <button
-            onClick={() => handleFormat('bold')}
+            onClick={() => editor?.chain().focus().toggleBold().run()}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
             title="Bold"
           >
             <Bold size={20} />
           </button>
           <button
-            onClick={() => handleFormat('italic')}
+            onClick={() => editor?.chain().focus().toggleItalic().run()}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
             title="Italic"
           >
             <Italic size={20} />
           </button>
           <button
-            onClick={() => handleFormat('underline')}
+            onClick={() => editor?.chain().focus().toggleUnderline?.().run()}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
             title="Underline"
           >
@@ -134,36 +122,21 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
           </button>
           <div className="h-6 w-px bg-gray-300 mx-2" />
           <button
-            onClick={() =>
-              setEntry({
-                ...entry,
-                formatting: { ...entry.formatting!, alignment: 'left' },
-              })
-            }
+            onClick={() => editor?.chain().focus().setTextAlign('left').run()}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
             title="Align Left"
           >
             <AlignLeft size={20} />
           </button>
           <button
-            onClick={() =>
-              setEntry({
-                ...entry,
-                formatting: { ...entry.formatting!, alignment: 'center' },
-              })
-            }
+            onClick={() => editor?.chain().focus().setTextAlign('center').run()}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
             title="Align Center"
           >
             <AlignCenter size={20} />
           </button>
           <button
-            onClick={() =>
-              setEntry({
-                ...entry,
-                formatting: { ...entry.formatting!, alignment: 'right' },
-              })
-            }
+            onClick={() => editor?.chain().focus().setTextAlign('right').run()}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
             title="Align Right"
           >
@@ -171,13 +144,9 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
           </button>
         </div>
 
-        <textarea
-          id="editor"
-          value={entry.content}
-          onChange={(e) => setEntry({ ...entry, content: e.target.value })}
-          className={`w-full min-h-[700px] p-4 border border-gray-200 rounded-lg focus:outline-none focus:border-gray-400 transition-colors resize-none text-${entry.formatting?.alignment}`}
-          placeholder="Start typing..."
-          style={{ width: '100%', minWidth: '1000px' }}
+        <EditorContent
+          editor={editor}
+          className="w-full min-h-[700px] p-4 border border-gray-200 rounded-lg focus:outline-none focus:border-gray-400 transition-colors resize-none"
         />
 
         <div className="flex justify-end mt-4">
@@ -211,20 +180,20 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
                   },
                   body: JSON.stringify({ content: entry.content }),
                 });
-                
+
                 if (!response.ok) {
                   throw new Error('Failed to generate content');
                 }
-                
+
                 const data = await response.json();
-                
+
                 if (data.error) {
                   throw new Error(data.error);
                 }
-                
-                setEntry({ 
+
+                setEntry({
                   ...entry,
-                  continuedContent: data.continuedContent 
+                  continuedContent: data.continuedContent,
                 });
                 setShowGenerated(true);
               } catch (err) {
