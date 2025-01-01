@@ -3,15 +3,20 @@ import { prisma } from '@/utils/db';
 import { NextResponse } from 'next/server';
 
 // GET - Get a single note
+// ...existing code...
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getUserFromClerkID();
+    const resolvedParams = await params;
+    console.log('Params:', resolvedParams);
+    console.log('User:', user);
+
     const note = await prisma.notesEntry.findUnique({
       where: {
-        id: params.id,
+        id: String(resolvedParams.id),
         userId: user.id,
       },
     });
@@ -21,11 +26,13 @@ export async function GET(
     }
 
     return NextResponse.json({ data: note });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    return NextResponse.json({ error: 'Error fetching note' }, { status: 500 });
+    console.error('Error in GET:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Error fetching note';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
+// ...existing code...
 
 // PATCH - Update a note
 export async function PATCH(
@@ -38,7 +45,7 @@ export async function PATCH(
 
     const updatedNote = await prisma.notesEntry.update({
       where: {
-        id: params.id,
+        id: String(params.id),
         userId: user.id,
       },
       data: {

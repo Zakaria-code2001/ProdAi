@@ -9,6 +9,7 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
+  Plus,
 } from 'lucide-react';
 
 const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
@@ -16,15 +17,34 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
     title: string;
     content: string;
     formatting?: { alignment: 'left' | 'center' | 'right' };
+    continuedContent?: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [id, setId] = useState<string | null>(null);
+  const [showGenerated, setShowGenerated] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     params.then((unwrappedParams) => {
       setId(unwrappedParams.id);
     });
   }, [params]);
+
+  useEffect(() => {
+    if (id) {
+      const fetchNote = async () => {
+        try {
+          const fetchedEntry = await getById(id);
+          setEntry(fetchedEntry);
+        } catch (err) {
+          console.error('Error fetching note:', err);
+          setError('Note not found.');
+        }
+      };
+
+      fetchNote();
+    }
+  }, [id]);
 
   const handleFormat = (type: 'bold' | 'italic' | 'underline') => {
     if (!entry) return;
@@ -60,21 +80,16 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
     }
   };
 
-  useEffect(() => {
-    if (id) {
-      const fetchNote = async () => {
-        try {
-          const fetchedEntry = await getById(id);
-          setEntry(fetchedEntry);
-        } catch (err) {
-          console.error('Error fetching note:', err);
-          setError('Nota non trovata.');
-        }
-      };
-
-      fetchNote();
-    }
-  }, [id]);
+  const addGeneratedContent = () => {
+    if (!entry?.continuedContent) return;
+    
+    setEntry({
+      ...entry,
+      content: entry.content + '\n' + entry.continuedContent,
+      continuedContent: undefined
+    });
+    setShowGenerated(false);
+  };
 
   if (error) {
     return <p>{error}</p>;
@@ -174,21 +189,72 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
                     title: entry.title,
                     content: entry.content,
                   });
-                  alert('Nota salvata con successo!');
-                } else {
-                  alert('Errore: ID non valido.');
+                  alert('Note saved successfully!');
                 }
-                alert('Nota salvata con successo!');
               } catch (err) {
                 console.error('Error saving note:', err);
-                alert('Errore durante il salvataggio della nota.');
+                alert('Error saving note.');
               }
             }}
             className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
           >
-            Salva
+            Save
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                setIsGenerating(true);
+                const response = await fetch('/api/continue-writing', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ content: entry.content }),
+                });
+                
+                if (!response.ok) {
+                  throw new Error('Failed to generate content');
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                  throw new Error(data.error);
+                }
+                
+                setEntry({ 
+                  ...entry,
+                  continuedContent: data.continuedContent 
+                });
+                setShowGenerated(true);
+              } catch (err) {
+                console.error('Error continuing generation:', err);
+                alert('Error during generation continuation.');
+              } finally {
+                setIsGenerating(false);
+              }
+            }}
+            disabled={isGenerating}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors ml-2 disabled:opacity-50"
+          >
+            {isGenerating ? 'Generating...' : 'Continue Writing'}
           </button>
         </div>
+
+        {showGenerated && entry.continuedContent && (
+          <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="text-lg font-semibold">Generated Content</h2>
+              <button
+                onClick={addGeneratedContent}
+                className="flex items-center px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+              >
+                <Plus size={16} className="mr-1" /> Add to Note
+              </button>
+            </div>
+            <p className="whitespace-pre-wrap">{entry.continuedContent}</p>
+          </div>
+        )}
       </div>
     </div>
   );
