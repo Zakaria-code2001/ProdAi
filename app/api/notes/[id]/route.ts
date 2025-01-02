@@ -3,14 +3,13 @@ import { prisma } from '@/utils/db';
 import { NextResponse } from 'next/server';
 
 // GET - Get a single note
-// ...existing code...
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getUserFromClerkID();
-    const resolvedParams = await params;
+    const resolvedParams = await params; // Resolve params
     console.log('Params:', resolvedParams);
     console.log('User:', user);
 
@@ -33,20 +32,20 @@ export async function GET(
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
-// ...existing code...
 
 // PATCH - Update a note
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // Change to Promise
 ) {
   try {
     const user = await getUserFromClerkID();
+    const resolvedParams = await params; // Resolve params
     const { title, content } = await request.json();
 
     const updatedNote = await prisma.notesEntry.update({
       where: {
-        id: String(params.id),
+        id: String(resolvedParams.id),
         userId: user.id,
       },
       data: {
@@ -56,8 +55,8 @@ export async function PATCH(
     });
 
     return NextResponse.json({ data: updatedNote });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
+    console.error('Error in PATCH:', error);
     return NextResponse.json({ error: 'Error updating note' }, { status: 500 });
   }
 }
@@ -65,20 +64,21 @@ export async function PATCH(
 // DELETE - Delete a note
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // Change to Promise
 ) {
   try {
     const user = await getUserFromClerkID();
+    const resolvedParams = await params; // Resolve params
     await prisma.notesEntry.delete({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
         userId: user.id,
       },
     });
 
     return NextResponse.json({ message: 'Note deleted' });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
+    console.error('Error in DELETE:', error);
     return NextResponse.json({ error: 'Error deleting note' }, { status: 500 });
   }
 }
