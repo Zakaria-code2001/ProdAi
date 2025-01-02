@@ -10,24 +10,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { Calendar, Home, Inbox, Search, Settings } from 'lucide-react';
+import { Calendar, Home, Inbox, Search, Settings, ClipboardCheck, UserCheck} from 'lucide-react';
 import Link from 'next/link';
 
 const items = [
   {
     title: 'Notes',
     url: '/notes',
-    icon: Home,
+    icon: UserCheck,
   },
   {
-    title: 'Inbox',
+    title: 'Todo list',
     url: '#',
-    icon: Inbox,
-  },
-  {
-    title: 'Calendar',
-    url: '#',
-    icon: Calendar,
+    icon: ClipboardCheck,
   },
   {
     title: 'Search',
