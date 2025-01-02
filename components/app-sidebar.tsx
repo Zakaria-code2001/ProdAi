@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { Calendar, Home, Inbox, Search, Settings, ClipboardCheck, UserCheck} from 'lucide-react';
+import { Calendar, Home, Inbox, Search, Settings, ClipboardCheck, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 
 const items = [
@@ -21,7 +21,7 @@ const items = [
   },
   {
     title: 'Todo list',
-    url: '#',
+    url: '/todo', // Update the URL to point to the Todo list page
     icon: ClipboardCheck,
   },
   {
@@ -55,10 +55,10 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
