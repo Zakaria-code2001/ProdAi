@@ -15,8 +15,16 @@ export async function POST(request: Request) {
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
           messages: [
-            { role: 'system', content: 'Dont use ** or similar for style give back plain text ' +
-                'dont ask questions just continue from the content' },
+            {
+              role: 'system',
+              content: `
+                You are an assistant focused on helping with note-taking. 
+                Do not use any special formatting (e.g., ** or similar) for styling, 
+                and avoid asking any questions. 
+                Continue directly from the content provided, offering suggestions, 
+                completions, or related notes without additional commentary.
+              `,
+            },
             { role: 'user', content }
           ],
         }),
