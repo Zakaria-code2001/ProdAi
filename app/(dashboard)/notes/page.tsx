@@ -1,6 +1,7 @@
 import NewNoteButton from '@/components/newNote';
 import { getUserFromClerkID } from '@/utils/auth';
 import { prisma } from '@/utils/db';
+import DeleteButton from '@/components/DeleteButton';
 
 const getEntries = async () => {
   const user = await getUserFromClerkID();
@@ -30,8 +31,9 @@ const NotesPage = async () => {
         {entries.map((entry) => (
           <div
             key={entry.id}
-            className="flex flex-col p-3 bg-gray-50 border border-gray-200 rounded-lg shadow-sm hover:shadow transition-shadow duration-300 dark:bg-gray-800 dark:border-gray-700"
+            className="relative flex flex-col p-3 bg-gray-50 border border-gray-200 rounded-lg shadow-sm hover:shadow transition-shadow duration-300 dark:bg-gray-800 dark:border-gray-700"
           >
+            <DeleteButton id={entry.id} />
             <a href={`/notes/${entry.id}`} className="block group">
               <h5 className="mb-1.5 text-lg font-bold tracking-tight text-gray-900 dark:text-white group-hover:text-gray-700">
                 {entry.title}
@@ -69,4 +71,5 @@ const NotesPage = async () => {
     </div>
   );
 };
+
 export default NotesPage;

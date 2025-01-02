@@ -69,6 +69,11 @@ const TextEditor: React.FC<TextEditorProps> = ({ content, onContentChange }) => 
           onInput={handleInput}
           className="w-full p-4 min-h-[200px] focus:outline-none overflow-auto whitespace-pre-wrap"
           style={{
+            width: "1000px", // Set a specific width
+            maxWidth: "100%",
+            minHeight: "200px",       // Minimum height
+            maxHeight: "300px",       // Maximum height for fixed size
+            overflowY: "auto",
             direction: 'ltr',
             textAlign: 'left',
             lineHeight: '1.5',

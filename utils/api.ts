@@ -62,3 +62,20 @@ export async function createNote(title: string, content: string) {
     return null;
   }
 }
+
+export async function deleteNote(id: string) {
+  try {
+    const response = await fetch(`/api/notes/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to delete note: ${response.statusText}`);
+    }
+
+    return true; // Returning true to indicate success
+  } catch (error) {
+    console.error('Error deleting note:', error);
+    return false; // Returning false to indicate failure
+  }
+}
