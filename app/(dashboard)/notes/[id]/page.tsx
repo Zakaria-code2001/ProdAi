@@ -1,21 +1,8 @@
-// filepath: /Users/zakariamohammadi/Desktop/prodai/app/(dashboard)/notes/[id]/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { getById, updateNote } from '@/utils/api';
-import {
-  Bold,
-  Italic,
-  Underline,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  Plus,
-} from 'lucide-react';
-import { EditorContent, useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Placeholder from '@tiptap/extension-placeholder';
-import OrderedList from '@tiptap/extension-ordered-list';
+import TextEditor from '@/components/textEditor'
 
 const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
   const [entry, setEntry] = useState<{
@@ -29,26 +16,17 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
   const [showGenerated, setShowGenerated] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Placeholder.configure({
-        placeholder: 'Inizia a scrivere...',
-      }),
-      OrderedList,
-    ],
-    content: entry?.content || '',
-    onUpdate: ({ editor }) => {
-      if (entry) {
-        setEntry({ ...entry, content: editor.getHTML() });
-      }
-    },
-  });
-
   useEffect(() => {
-    params.then((unwrappedParams) => {
-      setId(unwrappedParams.id);
-    });
+    const resolveParams = async () => {
+      try {
+        const unwrappedParams = await params;
+        setId(unwrappedParams.id);
+      } catch (err) {
+        console.error('Error resolving params:', err);
+        setError('Invalid page parameters.');
+      }
+    };
+    resolveParams();
   }, [params]);
 
   useEffect(() => {
@@ -57,7 +35,6 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
         try {
           const fetchedEntry = await getById(id);
           setEntry(fetchedEntry);
-          editor?.commands.setContent(fetchedEntry.content);
         } catch (err) {
           console.error('Error fetching note:', err);
           setError('Note not found.');
@@ -66,17 +43,26 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
 
       fetchNote();
     }
-  }, [id, editor]);
+  }, [id]);
+
+  const handleContentChange = (content: string) => {
+    if (entry) {
+      setEntry({ ...entry, content });
+    }
+  };
 
   const addGeneratedContent = () => {
-    if (!entry?.continuedContent || !editor) return;
+    if (!entry?.continuedContent) return;
 
-    editor.chain().focus().insertContent(entry.continuedContent).run();
-    setEntry({
-      ...entry,
-      continuedContent: undefined,
-    });
-    setShowGenerated(false);
+    setEntry((prevEntry) =>
+      prevEntry
+        ? {
+            ...prevEntry,
+            content: prevEntry.content + prevEntry.continuedContent,
+            continuedContent: undefined,
+          }
+        : null
+    );
   };
 
   if (error) {
@@ -98,55 +84,9 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
           placeholder="Untitled Document"
         />
 
-        <div className="flex items-center space-x-4 mb-4 p-2 border-b border-gray-200">
-          <button
-            onClick={() => editor?.chain().focus().toggleBold().run()}
-            className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="Bold"
-          >
-            <Bold size={20} />
-          </button>
-          <button
-            onClick={() => editor?.chain().focus().toggleItalic().run()}
-            className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="Italic"
-          >
-            <Italic size={20} />
-          </button>
-          <button
-            onClick={() => editor?.chain().focus().toggleUnderline?.().run()}
-            className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="Underline"
-          >
-            <Underline size={20} />
-          </button>
-          <div className="h-6 w-px bg-gray-300 mx-2" />
-          <button
-            onClick={() => editor?.chain().focus().setTextAlign('left').run()}
-            className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="Align Left"
-          >
-            <AlignLeft size={20} />
-          </button>
-          <button
-            onClick={() => editor?.chain().focus().setTextAlign('center').run()}
-            className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="Align Center"
-          >
-            <AlignCenter size={20} />
-          </button>
-          <button
-            onClick={() => editor?.chain().focus().setTextAlign('right').run()}
-            className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="Align Right"
-          >
-            <AlignRight size={20} />
-          </button>
-        </div>
-
-        <EditorContent
-          editor={editor}
-          className="w-full min-h-[700px] p-4 border border-gray-200 rounded-lg focus:outline-none focus:border-gray-400 transition-colors resize-none"
+        <TextEditor
+          content={entry.content}
+          onContentChange={handleContentChange}
         />
 
         <div className="flex justify-end mt-4">
@@ -216,9 +156,9 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
               <h2 className="text-lg font-semibold">Generated Content</h2>
               <button
                 onClick={addGeneratedContent}
-                className="flex items-center px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
               >
-                <Plus size={16} className="mr-1" /> Add to Note
+                Add Generated Text
               </button>
             </div>
             <p className="whitespace-pre-wrap">{entry.continuedContent}</p>

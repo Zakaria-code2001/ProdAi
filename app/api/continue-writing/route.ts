@@ -14,7 +14,11 @@ export async function POST(request: Request) {
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
-          messages: [{ role: 'user', content }],
+          messages: [
+            { role: 'system', content: 'Dont use ** or similar for style give back plain text ' +
+                'dont ask questions just continue from the content' },
+            { role: 'user', content }
+          ],
         }),
       }
     );
