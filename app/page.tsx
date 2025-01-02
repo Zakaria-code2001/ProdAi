@@ -11,17 +11,17 @@ export default async function Home() {
   return (
     <>
       <Navbar />
-      <div className="w-screen h-screen bg-white flex justify-center items-center">
+      <div className="w-screen h-screen bg-background flex justify-center items-center">
         <div className="w-full max-w-[700px] mx-auto">
-          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-foreground">
             ProdAi: Your Ai Productivity App
           </h1>
-          <p className="leading-7 [&:not(:first-child)]:mt-6">
+          <p className="leading-7 text-muted-foreground mt-6">
             Welcome to ProdAi, your ultimate AI-powered productivity app.
           </p>
           <div className="mt-4">
             <Link href={href}>
-              <Button variant="outline" className="text-white bg-black">
+              <Button variant="outline" className="bg-primary text-primary-foreground">
                 Get Started
               </Button>
             </Link>
