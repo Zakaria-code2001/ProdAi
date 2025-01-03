@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const user = await getUserFromClerkID();
-    const resolvedParams = await params; // Resolve the Promise to get the actual `id`
+    const resolvedParams = await params; // Resolve params
     console.log('Params:', resolvedParams);
     console.log('User:', user);
 
@@ -36,15 +36,16 @@ export async function GET(
 // PATCH - Update a note
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } } // Change `params` to a direct object instead of a promise
+  { params }: { params: Promise<{ id: string }> } // Change to Promise
 ) {
   try {
     const user = await getUserFromClerkID();
+    const resolvedParams = await params; // Resolve params
     const { title, content } = await request.json();
 
     const updatedNote = await prisma.notesEntry.update({
       where: {
-        id: String(params.id),  // Use the resolved `id` directly
+        id: String(resolvedParams.id),
         userId: user.id,
       },
       data: {
@@ -55,7 +56,7 @@ export async function PATCH(
 
     return NextResponse.json({ data: updatedNote });
   } catch (error) {
-    console.error('Error updating note:', error);
+    console.error('Error in PATCH:', error);
     return NextResponse.json({ error: 'Error updating note' }, { status: 500 });
   }
 }
@@ -63,20 +64,21 @@ export async function PATCH(
 // DELETE - Delete a note
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // Change to Promise
 ) {
   try {
     const user = await getUserFromClerkID();
+    const resolvedParams = await params; // Resolve params
     await prisma.notesEntry.delete({
       where: {
-        id: params.id,  // Use the resolved `id` directly
+        id: resolvedParams.id,
         userId: user.id,
       },
     });
 
     return NextResponse.json({ message: 'Note deleted' });
   } catch (error) {
-    console.error('Error deleting note:', error);
+    console.error('Error in DELETE:', error);
     return NextResponse.json({ error: 'Error deleting note' }, { status: 500 });
   }
 }
