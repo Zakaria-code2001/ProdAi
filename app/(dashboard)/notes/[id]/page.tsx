@@ -80,7 +80,7 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
           type="text"
           value={entry.title}
           onChange={(e) => setEntry({ ...entry, title: e.target.value })}
-          className="text-3xl font-bold w-full border-b-2 border-gray-200 py-2 px-1 mb-6 focus:outline-none focus:border-gray-400 transition-colors"
+          className="text-3xl font-bold w-full border-b-2 border-gray-200 py-2 px-1 mb-6 focus:outline-none focus:border-gray-400 transition-colors dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
           placeholder="Untitled Document"
         />
 
@@ -151,17 +151,17 @@ const NotePage = ({ params }: { params: Promise<{ id: string }> }) => {
         </div>
 
         {showGenerated && entry.continuedContent && (
-          <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
             <div className="flex justify-between items-center mb-2">
-              <h2 className="text-lg font-semibold">Generated Content</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Generated Content</h2>
               <button
                 onClick={addGeneratedContent}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded dark:bg-blue-700 dark:hover:bg-blue-800"
               >
                 Add Generated Text
               </button>
             </div>
-            <p className="whitespace-pre-wrap">{entry.continuedContent}</p>
+            <p className="whitespace-pre-wrap text-gray-900 dark:text-gray-100">{entry.continuedContent}</p>
           </div>
         )}
       </div>

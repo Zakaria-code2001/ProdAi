@@ -32,9 +32,9 @@ const TextEditor: React.FC<TextEditorProps> = ({ content, onContentChange }) => 
   };
 
   return (
-    <div className="w-full max-w-xl overflow-hidden rounded-xl border border-gray-300 bg-white">
+    <div className="w-full max-w-xl overflow-hidden rounded-xl border border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600">
       <div id="hs-editor-tiptap">
-        <div className="m-1 flex items-center gap-1 rounded-lg bg-gray-100 p-1">
+        <div className="m-1 flex items-center gap-1 rounded-lg bg-gray-100 dark:bg-gray-700 p-1">
           {[
             { icon: BoldIcon, command: "bold", label: "Bold" },
             { icon: ItalicIcon, command: "italic", label: "Italic" },
@@ -46,7 +46,7 @@ const TextEditor: React.FC<TextEditorProps> = ({ content, onContentChange }) => 
           ].map(({ icon: Icon, command, label }) => (
             <button
               key={label}
-              className="relative grid h-10 w-10 select-none place-items-center rounded-lg text-gray-900 transition hover:bg-gray-900/10 active:bg-gray-900/20 disabled:opacity-50"
+              className="relative grid h-10 w-10 select-none place-items-center rounded-lg text-gray-900 dark:text-gray-100 transition hover:bg-gray-900/10 active:bg-gray-900/20 disabled:opacity-50"
               type="button"
               onMouseDown={(e) => e.preventDefault()} // Prevent editor from losing focus
               onClick={() => {
@@ -67,7 +67,7 @@ const TextEditor: React.FC<TextEditorProps> = ({ content, onContentChange }) => 
           ref={editorRef}
           contentEditable
           onInput={handleInput}
-          className="w-full p-4 min-h-[200px] focus:outline-none overflow-auto whitespace-pre-wrap"
+          className="w-full p-4 min-h-[200px] focus:outline-none overflow-auto whitespace-pre-wrap text-gray-900 dark:text-gray-100"
           style={{
             width: "1000px", // Set a specific width
             maxWidth: "100%",

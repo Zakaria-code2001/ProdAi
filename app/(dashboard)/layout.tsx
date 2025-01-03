@@ -1,21 +1,22 @@
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
-import { ReactNode } from 'react';
 import NavbarLogged from '@/components/ui/navbar_logged';
+import { ReactNode } from 'react';
 
-const DashboardLayout = ({ children }: { children: ReactNode }) => {
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <>
-      <NavbarLogged />
-      <SidebarProvider>
-        <AppSidebar />
-        <main>
-          <SidebarTrigger />
-          {children}
-        </main>
-      </SidebarProvider>
-    </>
-  );
-};
+    <div className="h-screen flex flex-col">
 
-export default DashboardLayout;
+      {/* Sidebar and Main Content */}
+      <SidebarProvider>
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar */}
+          <AppSidebar />
+
+          {/* Main Content */}
+          <main className="flex-1 overflow-y-auto p-4">{children}</main>
+        </div>
+      </SidebarProvider>
+    </div>
+  );
+}
