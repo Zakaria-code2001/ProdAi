@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from 'react';
-import Link from 'next/link';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 type Todo = {
   id: number;
@@ -68,45 +73,55 @@ export function TodoList() {
           </button>
         </form>
         
-        <ul className="space-y-2">
+        <Accordion type="single" collapsible>
           {todos.map((todo) => (
-            <li
-              key={todo.id}
-              className={`p-3 border rounded-lg transition-colors dark:border-slate-600 ${
+            <AccordionItem value={todo.id.toString()} key={todo.id}>
+              <div className={`border rounded-lg transition-colors dark:border-slate-600 mb-2 ${
                 todo.completed ? 'dark:bg-slate-800/50' : 'dark:bg-transparent'
-              }`}
-            >
-              <div className="flex items-center justify-between gap-4">
-                <Link 
-                  href={`/todo/${todo.id}`}
-                  className={`flex-1 dark:text-white ${
-                    todo.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''
-                  }`}
-                >
-                  {todo.title}
-                </Link>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => toggleTodo(todo.id)}
-                    className={`px-3 py-1 rounded-lg text-sm ${
-                      todo.completed 
-                        ? 'border border-gray-300 dark:border-slate-600 hover:bg-slate-800 dark:text-white'
-                        : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}>
+                <div className="flex items-center justify-between p-3">
+                  <AccordionTrigger 
+                    className={`flex-1 hover:no-underline ${
+                      todo.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'dark:text-white'
                     }`}
                   >
-                    {todo.completed ? 'Undo' : 'Complete'}
-                  </button>
-                  <button
-                    onClick={() => deleteTodo(todo.id)}
-                    className="px-3 py-1 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
+                    {todo.title}
+                  </AccordionTrigger>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleTodo(todo.id);
+                      }}
+                      className={`px-3 py-1 rounded-lg text-sm ${
+                        todo.completed 
+                          ? 'border border-gray-300 dark:border-slate-600 hover:bg-slate-800 dark:text-white'
+                          : 'bg-blue-500 text-white hover:bg-blue-600'
+                      }`}
+                    >
+                      {todo.completed ? 'Undo' : 'Complete'}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteTodo(todo.id);
+                      }}
+                      className="px-3 py-1 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
+                <AccordionContent className="px-3 pb-3">
+                  <div className="dark:text-gray-400">
+                    Created: {todo.createdAt.toLocaleDateString()}
+                  </div>
+                  {/* Add more details here as needed */}
+                </AccordionContent>
               </div>
-            </li>
+            </AccordionItem>
           ))}
-        </ul>
+        </Accordion>
       </div>
     </div>
   );
