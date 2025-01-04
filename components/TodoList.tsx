@@ -24,6 +24,8 @@ const initialTodos: Todo[] = [
 export function TodoList() {
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
   const [newTodo, setNewTodo] = useState('');
+  const [suggestions, setSuggestions] = useState<Record<number, string>>({});
+  const [loading, setLoading] = useState<Record<number, boolean>>({});
   
   const toggleTodo = (id: number) => {
     setTodos(prev =>
@@ -52,6 +54,36 @@ export function TodoList() {
 
   const deleteTodo = (id: number) => {
     setTodos(prev => prev.filter(todo => todo.id !== id));
+    // Clean up suggestions when todo is deleted
+    setSuggestions(prev => {
+      const newSuggestions = { ...prev };
+      delete newSuggestions[id];
+      return newSuggestions;
+    });
+  };
+
+  const getSuggestions = async (todo: Todo) => {
+    setLoading(prev => ({ ...prev, [todo.id]: true }));
+    
+    try {
+      const response = await fetch('/api/todos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ task: todo.title }),
+      });
+      
+      const data = await response.json();
+      setSuggestions(prev => ({
+        ...prev,
+        [todo.id]: data.suggestions
+      }));
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    } finally {
+      setLoading(prev => ({ ...prev, [todo.id]: false }));
+    }
   };
 
   return (
@@ -104,6 +136,16 @@ export function TodoList() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        !loading[todo.id] && getSuggestions(todo);
+                      }}
+                      className="px-3 py-1 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600"
+                      disabled={loading[todo.id]}
+                    >
+                      {loading[todo.id] ? 'Loading...' : 'Boost'}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
                         deleteTodo(todo.id);
                       }}
                       className="px-3 py-1 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600"
@@ -113,10 +155,15 @@ export function TodoList() {
                   </div>
                 </div>
                 <AccordionContent className="px-3 pb-3">
-                  <div className="dark:text-gray-400">
+                  <div className="dark:text-gray-400 mb-2">
                     Created: {todo.createdAt.toLocaleDateString()}
                   </div>
-                  {/* Add more details here as needed */}
+                  {suggestions[todo.id] && (
+                    <div className="mt-3 p-3 bg-slate-800/30 rounded-lg dark:text-white">
+                      <h3 className="font-semibold mb-2">AI Suggestions:</h3>
+                      {suggestions[todo.id]}
+                    </div>
+                  )}
                 </AccordionContent>
               </div>
             </AccordionItem>
