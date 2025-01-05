@@ -136,7 +136,9 @@ export function TodoList() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        !loading[todo.id] && getSuggestions(todo);
+                        if (!loading[todo.id]) {
+                          getSuggestions(todo);
+                      }
                       }}
                       className="px-3 py-1 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600"
                       disabled={loading[todo.id]}

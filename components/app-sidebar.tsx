@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { Calendar, Home, Inbox, Search, Settings, ClipboardCheck, UserCheck } from 'lucide-react';
+import { Search, Settings, ClipboardCheck, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 
 const items = [
